@@ -23,6 +23,6 @@ public class Autoconfig extends Plugin {
 
   @Initializer(after = InitMilestone.JOB_LOADED)
   public static void poststart() throws Exception {
-    Config.configure();
+    ConfigAction.configure();
   }
 }

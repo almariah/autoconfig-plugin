@@ -47,6 +47,7 @@ import hudson.util.FormValidation;
 import org.kohsuke.stapler.Stapler;
 import java.nio.charset.StandardCharsets;
 import java.lang.ClassNotFoundException;
+import io.almariah.jenkins.plugins.autoconfig.model.Config;
 
 @Extension
 public class AutoconfigManagementLink extends ManagementLink {
@@ -117,7 +118,7 @@ public class AutoconfigManagementLink extends ManagementLink {
     }
 
     setYamlFile(yaml);
-    Config.configure();
+    ConfigAction.configure();
     // need fix
     rsp.forward(this, "_restart", req);
   }

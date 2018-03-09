@@ -8,6 +8,7 @@ import java.util.List;
 import de.theit.jenkins.crowd.CrowdSecurityRealm;
 import jenkins.model.Jenkins;
 import java.io.IOException;
+import io.almariah.jenkins.plugins.autoconfig.model.Crowd2;
 
 public class CrowdAction {
 
