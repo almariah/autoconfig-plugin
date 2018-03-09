@@ -14,9 +14,22 @@ import java.util.concurrent.ExecutionException;
 import hudson.lifecycle.RestartNotSupportedException;
 
 
-public class Utils {
+public class Plugins {
 
   private static Jenkins instance = Jenkins.getInstance();
+
+  public static boolean pluginWillExist(String plugin, List<String> plugins) {
+    if (plugins == null) {
+      if (!pluginExist(plugin)) {
+        return false;
+      }
+    } else {
+      if (!plugins.contains(plugin) && !pluginExist(plugin)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   public static boolean pluginExist(String plugin) {
     PluginManager pm = instance.getPluginManager();

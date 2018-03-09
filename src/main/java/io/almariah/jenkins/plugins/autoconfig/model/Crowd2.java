@@ -1,4 +1,4 @@
-package io.almariah.jenkins.plugins.autoconfig;
+package io.almariah.jenkins.plugins.autoconfig.model;
 
 import jenkins.model.Jenkins;
 

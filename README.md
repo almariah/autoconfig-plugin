@@ -46,18 +46,15 @@ credentials:
 ## Dependancies:
 
 * git v3.7.0
-* script-security v1.40
-* workflow-cps v2.45
 * mailer v1.20
-* credentials v2.1.16
-* structs v1.14
-* job-dsl v1.67
-* pipeline-utility-steps v2.0.1
-* durable-task v1.16
-* variant v1.0
 * matrix-auth v2.2
+* credentials v2.1.16
 * ssh-credentials v1.13
+* plain-credentials v1.4
 
 ## To do:
 * fine grained permissions
 * credentials scopes
+* authenticated users permission
+* fix autoconfig admin permission
+* plugin version for installation

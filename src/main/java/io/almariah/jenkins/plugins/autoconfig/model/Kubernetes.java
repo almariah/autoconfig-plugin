@@ -1,4 +1,4 @@
-package io.almariah.jenkins.plugins.autoconfig;
+package io.almariah.jenkins.plugins.autoconfig.model;
 
 import java.lang.String;
 import jenkins.model.Jenkins;
@@ -10,9 +10,9 @@ public class Kubernetes {
   private String serverUrl;
   private String namespace;
   private String credentialsId;
-  private int containerCap = 10;
-  private int maxRequests = 32;
-  private boolean skipTLS = false;
+  private int containerCap;
+  private int maxRequests;
+  private boolean skipTLS;
 
   public String getName() {
         return name;

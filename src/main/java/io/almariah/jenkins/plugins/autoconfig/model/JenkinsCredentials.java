@@ -1,4 +1,4 @@
-package io.almariah.jenkins.plugins.autoconfig;
+package io.almariah.jenkins.plugins.autoconfig.model;
 
 import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
@@ -41,12 +41,10 @@ public class JenkinsCredentials {
   public JenkinsCredentials() {
   }
 
-  @NotNull(message = "Credentials type cannot be null")
   public String getType() {
         return type;
   }
 
-  @NotNull(message = "Credentials id cannot be null")
   public String getId() {
         return id;
   }
