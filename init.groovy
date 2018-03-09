@@ -2,35 +2,12 @@ import jenkins.model.Jenkins;
 
 def instance = Jenkins.getInstance()
 
-def requiredPlugins = ["pipeline-utility-steps",
-                       "bouncycastle-api",
-                       "structs",
-                       "credentials",
-                       "plain-credentials",
-                       "kubernetes-credentials",
-                       "variant",
-                       "workflow-step-api",
-                       "durable-task",
-                       "kubernetes",
-                       "ace-editor",
-                       "jquery-detached",
-                       "workflow-scm-step",
-                       "scm-api",
-                       "script-security",
-                       "workflow-api",
-                       "workflow-support",
-                       "workflow-cps",
-                       "display-url-api",
+def requiredPlugins = ["git",
                        "mailer",
                        "matrix-auth",
-                       "apache-httpcomponents-client-4-api",
+                       "credentials",
                        "ssh-credentials",
-                       "jsch",
-                       "git-client",
-                       "junit",
-                       "matrix-project",
-                       "git",
-                       "job-dsl"]
+                       "plain-credentials"]
 
 def installed = false
 def initialized = false
