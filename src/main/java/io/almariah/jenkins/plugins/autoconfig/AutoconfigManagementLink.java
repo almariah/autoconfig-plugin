@@ -74,9 +74,12 @@ public class AutoconfigManagementLink extends ManagementLink {
     return System.getProperty("user.home") + "/jenkins.yaml";
   }
 
-  public AutoconfigManagementLink() throws java.io.IOException {
-    // if yaml file not exist
-    yamlFile = new String(Files.readAllBytes(Paths.get(getYamlPath())));
+  public AutoconfigManagementLink() throws IOException {
+    // needs modification
+    File f = new File(getYamlPath());
+    if (f.isFile() && f.canRead()) {
+      yamlFile = new String(Files.readAllBytes(Paths.get(getYamlPath())));
+    }
   }
 
   @Override
