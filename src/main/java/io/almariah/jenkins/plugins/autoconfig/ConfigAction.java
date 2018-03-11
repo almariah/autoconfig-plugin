@@ -42,62 +42,68 @@ public class ConfigAction {
     String homeDir = System.getProperty("user.home");
     // fix try
     // if yaml does not exist
-    try (InputStream in = new FileInputStream(new File(homeDir + "/jenkins.yaml"))) {
-      Config config = null;
-      try {
-        config =  yaml.loadAs(in, Config.class);
-        Validator.validate(config);
-      } catch (Exception e) {
-        LOG.warning(e.getMessage());
-      }
+    File yamlFile = new File(homeDir + "/jenkins.yaml");
+    if (yamlFile.isFile() && yamlFile.canRead()) {
+      try (InputStream in = new FileInputStream(yamlFile)) {
+        Config config = null;
+        try {
+          config =  yaml.loadAs(in, Config.class);
+          Validator.validate(config);
+        } catch (Exception e) {
+          LOG.warning(e.getMessage());
+        }
 
-      jenkinsModel.setUrl(config.getUrl());
-      jenkinsModel.setAdminAddress(config.getAdminAddress());
-      instance.setNumExecutors(config.getExecutors());
-      instance.save();
+        jenkinsModel.setUrl(config.getUrl());
+        jenkinsModel.setAdminAddress(config.getAdminAddress());
+        instance.setNumExecutors(config.getExecutors());
+        instance.save();
 
-      if (config.getCredentials() != null) {
-        for(JenkinsCredentials cred : config.getCredentials()) {
-          cred.createJenkinsCredentials();
+        if (config.getCredentials() != null) {
+          for(JenkinsCredentials cred : config.getCredentials()) {
+            cred.createJenkinsCredentials();
+          }
+        }
+
+        if (config.getPlugins() != null) {
+          Plugins.installPlugins(config.getPlugins(), config.isPluginsRestart());
+        }
+
+        boolean crowdEnabled = false;
+        if (config.getCrowd() != null) {
+          if (Plugins.pluginExist("crowd2")) {
+            CrowdAction.enable(config.getCrowd(), instance);
+            crowdEnabled = true;
+          } else {
+            LOG.warning("Autoconfig, Crowd 2 plugin (id: crowd2) is missing");
+          }
+        }
+
+        // check if getJenkinsUsers() is null
+        for(JenkinsUser jenkinsUser : config.getJenkinsUsers()) {
+          jenkinsUser.createJenkinsUser(instance, strategy, crowdEnabled);
+        }
+
+        instance.setAuthorizationStrategy(strategy);
+        instance.save();
+
+        if (config.getKubernetes() != null) {
+          if (Plugins.pluginExist("kubernetes")) {
+            KubernetesAction.createClouds(config.getKubernetes(), instance, jenkinsModel.getUrl());
+          } else {
+            LOG.warning("Autoconfig, Kubernetes plugin (id: kubernetes) is missing");
+          }
+        }
+
+        if (config.getSeedJobs() != null) {
+          if (Plugins.pluginExist("job-dsl")) {
+            SeedJobAction.createSeedJobs(config.getSeedJobs());
+          } else {
+            LOG.warning("Autoconfig, Job DSL plugin (id: job-dsl) is missing");
+          }
         }
       }
-
-      if (config.getPlugins() != null) {
-        Plugins.installPlugins(config.getPlugins(), config.isPluginsRestart());
-      }
-
-      boolean crowdEnabled = false;
-      if (config.getCrowd() != null) {
-        if (Plugins.pluginExist("crowd2")) {
-          CrowdAction.enable(config.getCrowd(), instance);
-          crowdEnabled = true;
-        } else {
-          LOG.warning("Autoconfig, Crowd 2 plugin (id: crowd2) is missing");
-        }
-      }
-
-      for(JenkinsUser jenkinsUser : config.getJenkinsUsers()) {
-        jenkinsUser.createJenkinsUser(instance, strategy, crowdEnabled);
-      }
-
-      instance.setAuthorizationStrategy(strategy);
-      instance.save();
-
-      if (config.getKubernetes() != null) {
-        if (Plugins.pluginExist("kubernetes")) {
-          KubernetesAction.createClouds(config.getKubernetes(), instance, jenkinsModel.getUrl());
-        } else {
-          LOG.warning("Autoconfig, Kubernetes plugin (id: kubernetes) is missing");
-        }
-      }
-
-      if (config.getSeedJobs() != null) {
-        if (Plugins.pluginExist("job-dsl")) {
-          SeedJobAction.createSeedJobs(config.getSeedJobs());
-        } else {
-          LOG.warning("Autoconfig, Job DSL plugin (id: job-dsl) is missing");
-        }
-      }
+    } else {
+      LOG.warning(String.format("Autoconfig, '%s' does not exist", homeDir + "/jenkins.yaml"));
     }
   }
 }
