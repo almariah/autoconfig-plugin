@@ -1,6 +1,5 @@
 package io.almariah.jenkins.plugins.autoconfig;
 
-
 import java.lang.String;
 import hudson.model.FreeStyleProject;
 import hudson.plugins.git.GitSCM;
@@ -21,59 +20,22 @@ import hudson.plugins.git.extensions.GitSCMExtension;
 import java.io.IOException;
 import java.lang.InterruptedException;
 import java.util.concurrent.ExecutionException;
+import io.almariah.jenkins.plugins.autoconfig.model.SeedJob;
+import java.util.List;
 
-public class SeedJob {
-  private String credentialsId;
-  private String branch;
-  private String repository;
-  private String fileName;
-  private String jobName;
+public class SeedJobAction {
 
-  public String getCredentialsId() {
-        return credentialsId;
+  public static void createSeedJobs(List<SeedJob> seedJobs) throws IOException, InterruptedException, ExecutionException {
+    for(SeedJob seedJob : seedJobs) {
+      createSeedJob(seedJob);
+    }
   }
 
-  public String getRepository() {
-        return repository;
-  }
-
-  public String getBranch() {
-        return branch;
-  }
-
-  public String getFileName() {
-        return fileName;
-  }
-
-  public String getJobName() {
-        return jobName;
-  }
-
-  public void setCredentialsId(String credentialsId) {
-        this.credentialsId = credentialsId;
-  }
-
-  public void setRepository(String repository) {
-        this.repository = repository;
-  }
-
-  public void setBranch(String branch) {
-        this.branch = branch;
-  }
-
-  public void setFileName(String fileName) {
-        this.fileName = fileName;
-  }
-
-  public void setJobName(String jobName) {
-        this.jobName = jobName;
-  }
-
-  public void createSeedJob() throws IOException, InterruptedException, ExecutionException {
+  public static void createSeedJob(SeedJob seedJob) throws IOException, InterruptedException, ExecutionException {
 
     Jenkins instance = Jenkins.getInstance();
 
-    String seedJobName = "Autoconfig Seed Job - " + getJobName();
+    String seedJobName = "Autoconfig Seed Job - " + seedJob.getJobName();
 
     if ( instance.getItem(seedJobName) == null ) {
       FreeStyleProject dslProject = new FreeStyleProject(instance, seedJobName);
@@ -81,8 +43,8 @@ public class SeedJob {
       dslProject.setDescription("This job is auto-generated to create Jenkins jobs that is specified in Jenkinsjobs file");
 
       GitSCM gitSCM = new GitSCM(
-        Arrays.asList(new UserRemoteConfig(this.repository, null, null, this.credentialsId)),
-        Arrays.asList(new BranchSpec(this.branch)),
+        Arrays.asList(new UserRemoteConfig(seedJob.getRepository(), null, null, seedJob.getCredentialsId())),
+        Arrays.asList(new BranchSpec(seedJob.getBranch())),
         false,
         Collections.<SubmoduleConfig>emptyList(),
         null,
@@ -96,7 +58,7 @@ public class SeedJob {
       jobDslBuildStep.setLookupStrategy(LookupStrategy.JENKINS_ROOT);
       jobDslBuildStep.setRemovedJobAction(RemovedJobAction.DELETE);
       jobDslBuildStep.setRemovedViewAction(RemovedViewAction.DELETE);
-      jobDslBuildStep.setTargets(this.fileName);
+      jobDslBuildStep.setTargets(seedJob.getFileName());
 
       dslProject.getBuildersList().add(jobDslBuildStep);
 

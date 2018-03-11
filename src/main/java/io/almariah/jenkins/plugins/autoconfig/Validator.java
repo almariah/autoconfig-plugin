@@ -2,6 +2,7 @@ package io.almariah.jenkins.plugins.autoconfig;
 
 import java.lang.String;
 import java.util.List;
+import io.almariah.jenkins.plugins.autoconfig.model.*;
 
 public class Validator {
 
@@ -15,27 +16,18 @@ public class Validator {
     if (config.getCredentials()!= null) {
       validateJenkinsCreds(config.getCredentials());
     }
-    if (config.getPlugins() != null) {
-      validatePlugins(config.getPlugins());
-    }
     if (config.getKubernetes() != null) {
       validateKubernetesClouds(config.getKubernetes(), config.getPlugins());
     }
     if (config.getSeedJobs() != null) {
-      validateSeedJobs(config.getSeedJobs());
+      validateSeedJobs(config.getSeedJobs(), config.getPlugins());
     }
   }
 
   public static void validateCrowd(Crowd2 crowd, List<String> plugins) throws Exception {
 
-    if (plugins == null) {
-      if (!Utils.pluginExist("crowd2")) {
-        throw new Exception("Autoconfig: Crowd 2 plugin (id: crowd2) is missing");
-      }
-    } else {
-      if (!plugins.contains("crowd2") && !Utils.pluginExist("crowd2")) {
-        throw new Exception("Autoconfig: Crowd 2 plugin (id: crowd2) is missing");
-      }
+    if (!Plugins.pluginWillExist("crowd2", plugins)) {
+      throw new Exception("Autoconfig: Crowd 2 plugin (id: crowd2) is missing");
     }
 
     if (crowd.getUrl() == null) {
@@ -51,9 +43,7 @@ public class Validator {
 
   public static void validateJenkinsUsers(List<JenkinsUser> jenkinsUsers, Crowd2 crowd) throws Exception {
     boolean isAdminExist = false;
-    if (jenkinsUsers == null) {
-      throw new Exception("Autoconfig 'jenkins.yaml', jenkinsUsers list is empty");
-    }
+
     for (JenkinsUser jenkinsUser : jenkinsUsers) {
       if (jenkinsUser.getUsername().equals("admin")) {
         isAdminExist = true;
@@ -75,9 +65,6 @@ public class Validator {
   }
 
   public static void validateJenkinsCreds(List<JenkinsCredentials> jenkinsCreds) throws Exception {
-    if (jenkinsCreds == null) {
-      throw new Exception("Autoconfig 'jenkins.yaml', credentials list is empty");
-    }
     for (JenkinsCredentials jenkinsCred : jenkinsCreds) {
       validateJenkinsCredentials(jenkinsCred);
     }
@@ -118,27 +105,12 @@ public class Validator {
     // throw new Exception(String.format("Autoconfig 'jenkins.yaml', %s is invalid type", type));
   }
 
-  public static void validatePlugins(List<String> plugins) throws Exception {
-    if (plugins == null) {
-      throw new Exception("Autoconfig 'jenkins.yaml', plugins list is empty");
-    }
-  }
-
   public static void validateKubernetesClouds(List<Kubernetes> clouds, List<String> plugins) throws Exception {
 
-    if (plugins == null) {
-      if (!Utils.pluginExist("kubernetes")) {
-        throw new Exception("Autoconfig: Kubernetes plugin (id: kubernetes) is missing");
-      }
-    } else {
-      if (!plugins.contains("kubernetes") && !Utils.pluginExist("crowd2")) {
-        throw new Exception("Autoconfig: Kubernetes plugin (id: kubernetes) is missing");
-      }
+    if (!Plugins.pluginWillExist("kubernetes", plugins)) {
+      throw new Exception("Autoconfig: Kubernetes plugin (id: kubernetes) is missing");
     }
 
-    if (clouds == null) {
-      throw new Exception("Autoconfig 'jenkins.yaml', kubernetes list is empty");
-    }
     for (Kubernetes cloud : clouds) {
       validateKubernetesCloud(cloud);
     }
@@ -150,10 +122,12 @@ public class Validator {
     }
   }
 
-  public static void validateSeedJobs(List<SeedJob> jobs) throws Exception {
-    if (jobs == null) {
-      throw new Exception("Autoconfig 'jenkins.yaml', seedJobs list is empty");
+  public static void validateSeedJobs(List<SeedJob> jobs, List<String> plugins) throws Exception {
+
+    if (!Plugins.pluginWillExist("job-dsl", plugins)) {
+      throw new Exception("Autoconfig, Job DSL plugin (id: job-dsl) is missing");
     }
+
     for (SeedJob job : jobs) {
       validateSeedJob(job);
     }

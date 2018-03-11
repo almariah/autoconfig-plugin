@@ -1,4 +1,4 @@
-package io.almariah.jenkins.plugins.autoconfig;
+package io.almariah.jenkins.plugins.autoconfig.model;
 
 import java.lang.String;
 import hudson.model.User;
